@@ -37,11 +37,14 @@ Gmail (Send Email)
 
 ##  Screenshot
 
-![Workflow](Screenshots.jpeg)
-![Workflow](Ai-news.jpeg)
+<p align="center">
+  <img src="Screenshots.png" width="900" alt="Workflow Screenshot">
+</p>
 
-
+<p align="center">
+  <img src="Ai-news.jpeg" width="900" height="1200" alt="Successful Execution">
+</p>
 
 ## Workflow JSON
 
-The exported workflow is available in `workflow.json`.
+The exported workflow is available in `Ai Daily News Summarizer.json`.
