@@ -42,7 +42,7 @@ Gmail (Send Email)
 </p>
 
 <p align="center">
-  <img src="Ai-news.jpeg" width="900" height="1200" alt="Successful Execution">
+  <img src="Ai-news.jpeg" height="600" alt="Successful Execution">
 </p>
 
 ## Workflow JSON
