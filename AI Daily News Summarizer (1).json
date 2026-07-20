@@ -1,0 +1,215 @@
+{
+  "name": "AI Daily News Summarizer",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5354951d-89a3-486d-8cc6-e6fa02fe83f0",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nCreate a daily news digest from these latest BBC news articles:\n\n{{$json.news}}\n\nRules:\n- Do not use Markdown.\n- Do not use asterisks (*).\n- Do not use bullet symbols.\n- Return plain text only.\n- Use numbered points.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        608,
+        0
+      ],
+      "id": "0b5083f8-2a20-475d-8ad5-17f34022fa24",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        -144
+      ],
+      "id": "dc8f602a-e382-4238-ba72-9950341e7be8",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TzrCOHcSbuL5sr4b",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "iframalik.903@gmail.com",
+        "subject": "Daily AI News Summary",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        -16
+      ],
+      "id": "f881e29c-ef5f-47bf-8ac7-872b8680f085",
+      "name": "Send a message",
+      "webhookId": "b3131ba8-8f32-476f-ac2d-081fdc1823f0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0uRBtFQZR3OrLFTo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "44a576aa-1e6b-4f68-81db-1fe9ee09f963",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "chatId": "7320792546",
+        "text": "={{ $('Basic LLM Chain').item.json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        256
+      ],
+      "id": "c2dd32a2-d309-4dc4-9d2c-d7f7885131b2",
+      "name": "Send a text message",
+      "webhookId": "95b5c08a-0b36-4a71-8f90-45325595ab40",
+      "credentials": {
+        "telegramApi": {
+          "id": "Ex6BTCPVq3AikWD4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const news = items\n.sort((a, b) => new Date(b.json.isoDate) - new Date(a.json.isoDate))\n.slice(0, 5)\n.map((item, index) => {\n  return `${index + 1}. ${item.json.title}\n${item.json.contentSnippet}`;\n})\n.join(\"\\n\\n\");\n\nreturn [\n  {\n    json: {\n      news\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "9695764a-876c-401b-a045-aff41abed7f1",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2d4fbb3e-cd03-4756-973d-311d9f08bbd0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ab8c1389da7edab016b79bde2d99914f33bf8b2fc0d39557a7313a8da414a2b1"
+  },
+  "nodeGroups": [],
+  "id": "daPxMz86HZhDgT3Z",
+  "tags": []
+}
